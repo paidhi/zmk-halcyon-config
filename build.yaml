@@ -1,18 +1,16 @@
-# This file generates the GitHub Actions matrix.
-# Add individual board + shield combinations to the `include` property. 
-# You can also use the `cmake-args` property to pass flags to the build command, 
-# `snippet` to add a Zephyr snippet, and `artifact-name` to assign a name to 
-# distinguish build outputs from each other:
-#
-# include:
-#   - board: halcyon_dongle//zmk
-#     shield: halcyon_kyria_dongle
-#     cmake-args: -DCONFIG_ZMK_STUDIO=y
-#     snippet: studio-rpc-usb-uart
-#   - board: halcyon_wireless//zmk
-#     shield: halcyon_kyria_left mod_battery_coincell mod_display_epaper
-#     cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=n
-#   - board: halcyon_wireless//zmk
-#     shield: halcyon_kyria_right mod_battery_coincell mod_encoder_right
-#
 ---
+include:
+  - board: halcyon_dongle//zmk
+    shield: halcyon_elora_dongle
+    artifact-name: halcyon_elora_dongle
+    cmake-args: -DCONFIG_ZMK_STUDIO=y
+    snippet: studio-rpc-usb-uart
+
+  - board: halcyon_wireless//zmk
+    shield: halcyon_elora_left mod_battery_coincell mod_display_epaper_forest
+    artifact-name: halcyon_elora_left_cc_epaper
+    cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=n
+
+  - board: halcyon_wireless//zmk
+    shield: halcyon_elora_right mod_battery_coincell
+    artifact-name: halcyon_elora_right_cc
