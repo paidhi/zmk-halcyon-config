@@ -32,6 +32,14 @@
       bindings = <&kp>, <&kp>;
     };
 
+    punctuation_hold_tap: punctuation_hold_tap {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      tapping-term-ms = <160>;
+      flavor = "hold-preferred";
+      bindings = <&kp>, <&kp>;
+    };
+
     repeat_tap_mo: repeat_tap_mo {
       compatible = "zmk,behavior-hold-tap";
       #binding-cells = <2>;
@@ -144,9 +152,9 @@
       display-name = "Main";
       bindings = <
         &kp ESC   &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                                               &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &kp BSPC
-        &kp ESC   &kp Q  &kp W  &kp F  &kp P  &kp B                                                &kp J  &kp L  &kp U  &kp Y  &kp SEMI &sl 4
+        &kp ESC   &kp Q  &kp W  &kp F  &kp P  &kp B                                                &kp J  &kp L  &kp U  &kp Y  &punctuation_hold_tap COLON SEMI &sl 4
         &tab_alt_tab LA(TAB) TAB   &left_hrm LGUI A &left_hrm LALT R &left_hrm LCTRL S &left_hrm LSHIFT T &kp G   &kp M &right_hrm RSHIFT N &right_hrm RCTRL E &right_hrm LALT I &right_hrm RGUI O &kp RET
-        &kp DEL   &kp Z &kp X &kp C &kp D &kp V &kp C_VOL_DN &kp C_VOL_UP   &mo 6 &to 1    &kp K &kp H &kp COMMA &kp DOT &kp FSLH &kp PSCRN
+        &kp DEL   &kp Z &kp X &kp C &kp D &kp V &kp C_VOL_DN &kp C_VOL_UP   &mo 6 &to 1    &kp K &kp H &punctuation_hold_tap LESS_THAN COMMA &punctuation_hold_tap GREATER_THAN DOT &punctuation_hold_tap QUESTION FSLH &kp PSCRN
                                 &kp DOWN &kp UP &none &repeat_tap_mo 2 BSPC &kp SPACE      &kp RET &repeat_tap_mo 2 SPACE &key_repeat &kp LEFT &kp RIGHT
 
         &none &none &none &none &none                                                          &none &none &none &none &none
