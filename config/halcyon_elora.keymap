@@ -179,7 +179,7 @@
     navnum_layer {
       display-name = "NavNum";
       bindings = <
-        &trans &trans &trans &trans &trans &trans                                            &trans &trans &trans &trans &trans &trans
+        &trans &kp F1 &kp F2 &kp F3 &kp F4 &kp F5                                              &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &trans
         &escape_main 0 ESC &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                              &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &none
         &sl 5 &sk LGUI &sk LALT &sk LCTRL &sk LSHIFT &none                                  &kp LEFT &kp DOWN &kp UP &kp RIGHT &none &trans
         &tog 2 &none &none &kp LC(LS(C)) &kp LC(BSPC) &kp LC(LS(V)) &none &none     &none &none &kp HOME &kp PG_DN &kp PG_UP &kp END &none &tog 2
