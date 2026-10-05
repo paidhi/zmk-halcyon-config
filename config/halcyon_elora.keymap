@@ -196,9 +196,9 @@
       display-name = "Special";
       bindings = <
         &trans &trans &trans &trans &trans &trans                                            &trans &trans &trans &trans &trans &trans
-        &escape_main 0 ESC &none &kp F7 &kp F8 &kp F9 &kp F10                              &kp LC(LA(LEFT)) &kp LC(LA(DOWN)) &kp LC(LA(UP)) &kp LC(LA(RIGHT)) &none &trans
-        &none &none &kp F4 &kp F5 &kp F6 &kp F11                                             &kp LC(LS(LEFT)) &kp LC(LS(DOWN)) &kp LC(LS(UP)) &kp LC(LS(RIGHT)) &none &none
-        &tog 3 &none &kp F1 &kp F2 &kp F3 &kp F12 &none &none       &none &none                 &kp LC(LS(LA(LEFT))) &kp LC(LS(LA(DOWN))) &kp LC(LS(LA(UP))) &kp LC(LS(LA(RIGHT))) &none &none
+        &escape_main 0 ESC &none &none &none &none &none                                     &none &none &kp LC(LS(UP)) &none &none &none
+        &none &none &none &none &none &none                                                  &none &kp LC(LS(LEFT)) &kp LC(LS(DOWN)) &kp LC(LS(RIGHT)) &none &none
+        &tog 3 &none &none &none &none &none &none &none       &none &none                 &none &none &none &none &none &none
                            &none &none &none &trans &trans       &none &trans &none &none &none
 
         &none &none &none &none &none                                                         &none &none &none &none &none
