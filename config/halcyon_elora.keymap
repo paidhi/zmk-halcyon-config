@@ -11,7 +11,17 @@
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/rgb.h>
 
-// Kyria Vial layers 0, 1, 2, 4, 5, 6 become ZMK layers 0-5; Adjust is 6.
+// Mouse sits below the functional layers so they override its shortcuts.
+#define MAIN     0
+#define TYPING   1
+#define MOUSE    2
+#define NAV      3
+#define SPECIAL  4
+#define SYSMEDIA 5
+#define UMLAUT   6
+#define ADJUST   7
+#define NUM      8
+
 // The Elora's first row adds twelve switches. All other switch positions
 // follow the Kyria's physical order, not the Vial export's JSON row order.
 
@@ -46,6 +56,63 @@
       #binding-cells = <2>;
       tapping-term-ms = <160>;
       flavor = "tap-preferred";
+      bindings = <&kp>, <&kp>;
+    };
+
+    // Match Kyria's Mouse actions: a short press or interruption is a tap;
+    // an uninterrupted 180 ms hold sends the secondary action. Listing only
+    // the key's own position makes every other key press force a tap.
+    mouse_escape: mouse_escape {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      tapping-term-ms = <180>;
+      flavor = "hold-preferred";
+      hold-trigger-key-positions = <12>;
+      bindings = <&kp>, <&kp>;
+    };
+
+    mouse_close_app: mouse_close_app {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      tapping-term-ms = <180>;
+      flavor = "hold-preferred";
+      hold-trigger-key-positions = <13>;
+      bindings = <&kp>, <&kp>;
+    };
+
+    mouse_close_tab: mouse_close_tab {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      tapping-term-ms = <180>;
+      flavor = "hold-preferred";
+      hold-trigger-key-positions = <14>;
+      bindings = <&kp>, <&kp>;
+    };
+
+    mouse_tabs: mouse_tabs {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      tapping-term-ms = <180>;
+      flavor = "hold-preferred";
+      hold-trigger-key-positions = <24>;
+      bindings = <&kp>, <&kp>;
+    };
+
+    mouse_copy: mouse_copy {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      tapping-term-ms = <180>;
+      flavor = "hold-preferred";
+      hold-trigger-key-positions = <39>;
+      bindings = <&kp>, <&kp>;
+    };
+
+    mouse_paste: mouse_paste {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      tapping-term-ms = <180>;
+      flavor = "hold-preferred";
+      hold-trigger-key-positions = <41>;
       bindings = <&kp>, <&kp>;
     };
 
@@ -112,38 +179,39 @@
   combos {
     compatible = "zmk,combos";
     // Vial combos use keycodes; these are Elora physical positions instead.
-    // Layer 1 inherits the same combo inputs except the S home-row mod at position 27.
-    combo_delete_word { key-positions = <55 40>; layers = <0 1>; bindings = <&kp LC(BSPC)>; };
-    combo_ctrl_u { key-positions = <19 20>; layers = <0 1>; bindings = <&kp LC(U)>; };
-    combo_ctrl_l { key-positions = <19 20 21>; layers = <0 1>; bindings = <&kp LC(L)>; };
-    combo_caps_word { key-positions = <14 15>; layers = <0 1>; bindings = <&caps_word>; };
-    combo_plus { key-positions = <41 46>; layers = <0 1>; bindings = <&kp LS(EQUAL)>; };
-    combo_double_quote { key-positions = <15 20>; layers = <0 1>; bindings = <&kp LS(SQT)>; };
-    combo_grave { key-positions = <14 21>; layers = <0 1>; bindings = <&kp GRAVE>; };
-    combo_equal { key-positions = <39 48>; layers = <0 1>; bindings = <&kp EQUAL>; };
-    combo_pipe { key-positions = <38 49>; layers = <0 1>; bindings = <&kp LS(BSLH)>; };
-    combo_quote { key-positions = <16 19>; layers = <0 1>; bindings = <&kp SQT>; };
-    combo_minus { key-positions = <40 47>; layers = <0 1>; bindings = <&kp MINUS>; };
-    combo_underscore { key-positions = <37 50>; layers = <0 1>; bindings = <&kp LS(MINUS)>; };
-    combo_backslash { key-positions = <17 18>; layers = <0 1>; bindings = <&kp BSLH>; };
-    combo_sticky_shift { key-positions = <55 58>; layers = <0 1>; bindings = <&sk_shift LSHIFT>; };
-    combo_ctrl_r { key-positions = <15 16>; layers = <0 1>; bindings = <&kp LC(R)>; };
-    combo_tilde { key-positions = <13 22>; layers = <0 1>; bindings = <&kp LS(GRAVE)>; };
-    combo_exclamation { key-positions = <13 58>; layers = <0 1>; bindings = <&kp LS(N1)>; };
-    combo_at { key-positions = <14 58>; layers = <0 1>; bindings = <&kp LS(N2)>; };
-    combo_hash { key-positions = <15 58>; layers = <0 1>; bindings = <&kp LS(N3)>; };
-    combo_dollar { key-positions = <16 58>; layers = <0 1>; bindings = <&kp LS(N4)>; };
-    combo_percent { key-positions = <17 58>; layers = <0 1>; bindings = <&kp LS(N5)>; };
-    combo_left_paren { key-positions = <39 40>; layers = <0 1>; bindings = <&kp LS(N9)>; };
-    combo_left_bracket { key-positions = <38 39>; layers = <0 1>; bindings = <&kp LBKT>; };
-    combo_left_brace { key-positions = <38 39 40>; layers = <0 1>; bindings = <&kp LS(LBKT)>; };
-    combo_right_paren { key-positions = <47 48>; layers = <0 1>; bindings = <&kp LS(N0)>; };
-    combo_right_bracket { key-positions = <48 49>; layers = <0 1>; bindings = <&kp RBKT>; };
-    combo_right_brace { key-positions = <47 48 49>; layers = <0 1>; bindings = <&kp LS(RBKT)>; };
-    combo_caret { key-positions = <18 55>; layers = <0 1>; bindings = <&kp LS(N6)>; };
-    combo_ampersand { key-positions = <19 55>; layers = <0 1>; bindings = <&kp LS(N7)>; };
-    combo_asterisk { key-positions = <20 55>; layers = <0 1>; bindings = <&kp LS(N8)>; };
-    combo_ctrl_space { key-positions = <27 58>; layers = <0>; bindings = <&kp LC(SPACE)>; };
+    // Typing changes the S home-row mod at position 27. Mouse inherits Main's
+    // combos only when none of their inputs are remapped on Mouse.
+    combo_delete_word { key-positions = <55 40>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LC(BSPC)>; };
+    combo_ctrl_u { key-positions = <19 20>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LC(U)>; };
+    combo_ctrl_l { key-positions = <19 20 21>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LC(L)>; };
+    combo_caps_word { key-positions = <14 15>; layers = <MAIN TYPING>; bindings = <&caps_word>; };
+    combo_plus { key-positions = <41 46>; layers = <MAIN TYPING>; bindings = <&kp LS(EQUAL)>; };
+    combo_double_quote { key-positions = <15 20>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(SQT)>; };
+    combo_grave { key-positions = <14 21>; layers = <MAIN TYPING>; bindings = <&kp GRAVE>; };
+    combo_equal { key-positions = <39 48>; layers = <MAIN TYPING>; bindings = <&kp EQUAL>; };
+    combo_pipe { key-positions = <38 49>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(BSLH)>; };
+    combo_quote { key-positions = <16 19>; layers = <MAIN TYPING>; bindings = <&kp SQT>; };
+    combo_minus { key-positions = <40 47>; layers = <MAIN TYPING MOUSE>; bindings = <&kp MINUS>; };
+    combo_underscore { key-positions = <37 50>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(MINUS)>; };
+    combo_backslash { key-positions = <17 18>; layers = <MAIN TYPING>; bindings = <&kp BSLH>; };
+    combo_sticky_shift { key-positions = <55 58>; layers = <MAIN TYPING MOUSE>; bindings = <&sk_shift LSHIFT>; };
+    combo_ctrl_r { key-positions = <15 16>; layers = <MAIN TYPING>; bindings = <&kp LC(R)>; };
+    combo_tilde { key-positions = <13 22>; layers = <MAIN TYPING>; bindings = <&kp LS(GRAVE)>; };
+    combo_exclamation { key-positions = <13 58>; layers = <MAIN TYPING>; bindings = <&kp LS(N1)>; };
+    combo_at { key-positions = <14 58>; layers = <MAIN TYPING>; bindings = <&kp LS(N2)>; };
+    combo_hash { key-positions = <15 58>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(N3)>; };
+    combo_dollar { key-positions = <16 58>; layers = <MAIN TYPING>; bindings = <&kp LS(N4)>; };
+    combo_percent { key-positions = <17 58>; layers = <MAIN TYPING>; bindings = <&kp LS(N5)>; };
+    combo_left_paren { key-positions = <39 40>; layers = <MAIN TYPING>; bindings = <&kp LS(N9)>; };
+    combo_left_bracket { key-positions = <38 39>; layers = <MAIN TYPING>; bindings = <&kp LBKT>; };
+    combo_left_brace { key-positions = <38 39 40>; layers = <MAIN TYPING>; bindings = <&kp LS(LBKT)>; };
+    combo_right_paren { key-positions = <47 48>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(N0)>; };
+    combo_right_bracket { key-positions = <48 49>; layers = <MAIN TYPING MOUSE>; bindings = <&kp RBKT>; };
+    combo_right_brace { key-positions = <47 48 49>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(RBKT)>; };
+    combo_caret { key-positions = <18 55>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(N6)>; };
+    combo_ampersand { key-positions = <19 55>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(N7)>; };
+    combo_asterisk { key-positions = <20 55>; layers = <MAIN TYPING MOUSE>; bindings = <&kp LS(N8)>; };
+    combo_ctrl_space { key-positions = <27 58>; layers = <MAIN MOUSE>; bindings = <&kp LC(SPACE)>; };
   };
 
   keymap {
@@ -154,10 +222,10 @@
       display-name = "Main";
       bindings = <
         &kp ESC   &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                                               &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &kp BSPC
-        &kp ESC   &kp Q  &kp W  &kp F  &kp P  &kp B                                                &kp J  &kp L  &kp U  &kp Y  &punctuation_hold_tap COLON SEMI &sl 4
+        &kp ESC   &kp Q  &kp W  &kp F  &kp P  &kp B                                                &kp J  &kp L  &kp U  &kp Y  &punctuation_hold_tap COLON SEMI &sl SYSMEDIA
         &mt LA(TAB) TAB   &left_hrm LGUI A &left_hrm LALT R &left_hrm LCTRL S &left_hrm LSHIFT T &kp G   &kp M &right_hrm RSHIFT N &right_hrm RCTRL E &right_hrm LALT I &right_hrm RGUI O &kp RET
-        &kp DEL   &kp Z &kp X &kp C &kp D &kp V &kp C_VOL_DN &kp C_VOL_UP   &mo 6 &to 1    &kp K &kp H &punctuation_hold_tap LESS_THAN COMMA &punctuation_hold_tap GREATER_THAN DOT &punctuation_hold_tap QUESTION FSLH &kp PSCRN
-                                &kp DOWN &kp UP &none &repeat_tap_mo 2 BSPC &mt LA(TAB) SPACE      &mt C_PLAY_PAUSE RET &repeat_tap_mo 7 SPACE &key_repeat &kp LEFT &kp RIGHT
+        &kp DEL   &kp Z &kp X &kp C &kp D &kp V &kp C_VOL_DN &kp C_VOL_UP   &mo ADJUST &to TYPING    &kp K &kp H &punctuation_hold_tap LESS_THAN COMMA &punctuation_hold_tap GREATER_THAN DOT &punctuation_hold_tap QUESTION FSLH &kp PSCRN
+                                &kp DOWN &kp UP &to MOUSE &repeat_tap_mo NAV BSPC &mt LA(TAB) SPACE      &mt C_PLAY_PAUSE RET &repeat_tap_mo NUM SPACE &key_repeat &kp LEFT &kp RIGHT
 
         &none &none &none &none &none                                                          &none &none &none &none &none
       >;
@@ -168,10 +236,24 @@
       display-name = "Typing";
       bindings = <
         &trans &trans &trans &trans &trans &trans                                             &trans &trans &trans &trans &trans &trans
-        &escape_main 0 ESC &trans &trans &trans &trans &trans                               &trans &trans &trans &trans &trans &trans
+        &escape_main MAIN ESC &trans &trans &trans &trans &trans                               &trans &trans &trans &trans &trans &trans
         &trans &kp A &kp R &kp S &kp T &trans                                                &trans &kp N &kp E &kp I &kp O &trans
-        &trans &trans &trans &trans &trans &trans &trans &trans       &trans &to 0             &trans &trans &trans &trans &trans &trans
+        &trans &trans &trans &trans &trans &trans &trans &trans       &trans &to MAIN             &trans &trans &trans &trans &trans &trans
                            &trans &trans &trans &trans &trans       &trans &trans &trans &trans &trans
+
+        &none &none &none &none &none                                                         &none &none &none &none &none
+      >;
+      sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+    };
+
+    mouse_layer {
+      display-name = "Mouse";
+      bindings = <
+        &trans &trans &trans &trans &trans &trans                                             &trans &trans &trans &trans &trans &trans
+        &mouse_escape C_PLAY_PAUSE ESC &mouse_close_app LG(LS(Q)) LC(Q) &mouse_close_tab LG(W) LC(W) &trans &kp HOME &kp END   &trans &trans &trans &trans &trans &trans
+        &mouse_tabs LC(T) LC(TAB) &trans &trans &trans &trans &trans                          &trans &trans &trans &trans &trans &trans
+        &kp RET &trans &trans &mouse_copy LC(LS(C)) LC(C) &trans &mouse_paste LC(LS(V)) LC(V) &trans &trans   &trans &trans &trans &trans &trans &trans &trans &trans
+                           &trans &trans &to MAIN &trans &trans       &trans &trans &trans &trans &trans
 
         &none &none &none &none &none                                                         &none &none &none &none &none
       >;
@@ -182,10 +264,10 @@
       display-name = "Nav";
       bindings = <
         &trans &none &none &none &none &none                                                &none &none &kp PAGE_UP &none &none &trans
-        &escape_main 0 ESC &none &none &none &none &none                               &none &kp HOME &kp UP_ARROW &kp END &none &none
-        &sl 5 &sk LGUI &sk LALT &sk LCTRL &sk LSHIFT &none                               &none &kp LEFT_ARROW &kp DOWN &kp RIGHT &none &trans
-        &tog 2 &none &none &kp LC(LS(C)) &kp LC(BSPC) &paste_hold_tap LG(V) LC(LS(V)) &none &none    &none &none &none &kp LC(LEFT_ARROW) &kp PAGE_DOWN &kp LC(RIGHT_ARROW) &none &tog 2
-                           &none &none &none &none &none                              &trans &mo 3 &trans &none &none
+        &escape_main MAIN ESC &none &none &none &none &none                               &none &kp HOME &kp UP_ARROW &kp END &none &none
+        &sl UMLAUT &sk LGUI &sk LALT &sk LCTRL &sk LSHIFT &none                               &none &kp LEFT_ARROW &kp DOWN &kp RIGHT &none &trans
+        &tog NAV &none &none &kp LC(LS(C)) &kp LC(BSPC) &paste_hold_tap LG(V) LC(LS(V)) &none &none    &none &none &none &kp LC(LEFT_ARROW) &kp PAGE_DOWN &kp LC(RIGHT_ARROW) &none &tog NAV
+                           &none &none &none &none &none                              &trans &mo SPECIAL &trans &none &none
 
         &none &none &none &none &none                                                         &none &none &none &none &none
       >;
@@ -196,9 +278,9 @@
       display-name = "Special";
       bindings = <
         &trans &trans &trans &trans &trans &trans                                            &trans &trans &trans &trans &trans &trans
-        &escape_main 0 ESC &none &none &none &none &none                                     &kp LC(LS(UP)) &kp LC(HOME) &kp LS(UP) &kp LC(END) &none &none
+        &escape_main MAIN ESC &none &none &none &none &none                                     &kp LC(LS(UP)) &kp LC(HOME) &kp LS(UP) &kp LC(END) &none &none
         &none &none &none &none &none &none                                                  &none &kp LC(LS(LEFT)) &kp LS(DOWN) &kp LC(LS(RIGHT)) &none &none
-        &tog 3 &none &none &none &none &none &none &none       &none &none                 &kp LC(LS(DOWN)) &none &none &none &none &none
+        &tog SPECIAL &none &none &none &none &none &none &none       &none &none                 &kp LC(LS(DOWN)) &none &none &none &none &none
                            &none &none &none &trans &trans       &none &trans &none &none &none
 
         &none &none &none &none &none                                                         &none &none &none &none &none
@@ -210,7 +292,7 @@
       display-name = "SysMedia";
       bindings = <
         &trans &trans &trans &trans &trans &trans                                            &trans &trans &trans &trans &trans &trans
-        &escape_main 0 ESC &none &none &kp F &kp LEFT &kp RIGHT                             &none &none &kp C_VOL_UP &none &rgb_ug RGB_TOG &trans
+        &escape_main MAIN ESC &none &none &kp F &kp LEFT &kp RIGHT                             &none &none &kp C_VOL_UP &none &rgb_ug RGB_TOG &trans
         &trans &none &kp LS(LA(C)) &kp T &kp J &kp L                                         &none &none &kp C_PLAY_PAUSE &none &rgb_ug RGB_BRI &rgb_ug RGB_EFF
         &kp LC(W) &none &none &kp C &kp LC(LEFT) &kp LC(RIGHT) &trans &trans       &none &none &kp LC(LS(M)) &kp C_MUTE &kp C_VOL_DN &none &rgb_ug RGB_BRD &rgb_ug RGB_EFR
                            &none &none &none &kp SPACE &kp SPACE       &kp SPACE &kp SPACE &none &kp LEFT &kp RIGHT
@@ -223,7 +305,7 @@
       display-name = "Umlaut";
       bindings = <
         &trans &trans &trans &trans &trans &trans                                            &trans &trans &trans &trans &trans &trans
-        &escape_main 0 ESC &none &none &none &none &none                                   &none &none &kp RA(Y) &none &none &none
+        &escape_main MAIN ESC &none &none &none &none &none                                   &none &none &kp RA(Y) &none &none &none
         &trans &kp RA(Q) &none &kp RA(S) &none &none                                        &none &none &none &none &kp RA(P) &none
         &none &none &none &none &none &none &none &none       &none &none                     &none &none &none &none &none &none
                            &none &none &none &none &none       &none &none &none &none &none
@@ -250,9 +332,9 @@
       display-name = "Num";
       bindings = <
         &trans &kp F1 &kp F2 &kp F3 &kp F4 &kp F5                                              &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &trans
-        &escape_main 0 ESC &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                              &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &none
-        &sl 5 &sk LGUI &sk LALT &sk LCTRL &sk LSHIFT &none                                  &none &none &none &none &none &trans
-        &tog 7 &none &none &kp LC(LS(C)) &kp LC(BSPC) &paste_hold_tap LG(V) LC(LS(V)) &none &none     &none &none &none &none &kp COMMA &kp DOT &none &tog 7
+        &escape_main MAIN ESC &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                              &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &none
+        &sl UMLAUT &sk LGUI &sk LALT &sk LCTRL &sk LSHIFT &none                                  &none &none &none &none &none &trans
+        &tog NUM &none &none &kp LC(LS(C)) &kp LC(BSPC) &paste_hold_tap LG(V) LC(LS(V)) &none &none     &none &none &none &none &kp COMMA &kp DOT &none &tog NUM
                            &none &none &none &escape_k_zero &ctrl_space_slash              &trans &none &trans &none &none
 
         &none &none &none &none &none                                                         &none &none &none &none &none
