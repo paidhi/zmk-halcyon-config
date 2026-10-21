@@ -16,11 +16,11 @@
 #define TYPING   1
 #define MOUSE    2
 #define NAV      3
-#define SPECIAL  4
-#define SYSMEDIA 5
-#define UMLAUT   6
-#define ADJUST   7
-#define NUM      8
+#define NUM      4
+#define SPECIAL  5
+#define SYSMEDIA 6
+#define UMLAUT   7
+#define ADJUST   8
 
 // The Elora's first row adds twelve switches. All other switch positions
 // follow the Kyria's physical order, not the Vial export's JSON row order.
@@ -274,6 +274,20 @@
       sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
     };
 
+    num_layer {
+      display-name = "Num";
+      bindings = <
+        &trans &kp F1 &kp F2 &kp F3 &kp F4 &kp F5                                              &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &trans
+        &escape_main MAIN ESC &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                              &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &none
+        &sl UMLAUT &sk LGUI &sk LALT &sk LCTRL &sk LSHIFT &none                                  &none &none &none &none &none &trans
+        &tog NUM &none &none &kp LC(LS(C)) &kp LC(BSPC) &paste_hold_tap LG(V) LC(LS(V)) &none &none     &none &none &none &none &kp COMMA &kp DOT &none &tog NUM
+                           &none &none &none &escape_k_zero &ctrl_space_slash              &trans &none &trans &none &none
+
+        &none &none &none &none &none                                                         &none &none &none &none &none
+      >;
+      sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+    };
+
     special_layer {
       display-name = "Special";
       bindings = <
@@ -324,20 +338,6 @@
                                    &trans       &trans       &trans &trans   &trans &trans &trans &trans   &trans          &trans
 
         &trans &trans &trans &trans &trans                                                                 &trans &trans &trans &trans &trans
-      >;
-      sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
-    };
-
-    num_layer {
-      display-name = "Num";
-      bindings = <
-        &trans &kp F1 &kp F2 &kp F3 &kp F4 &kp F5                                              &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &trans
-        &escape_main MAIN ESC &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                              &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &none
-        &sl UMLAUT &sk LGUI &sk LALT &sk LCTRL &sk LSHIFT &none                                  &none &none &none &none &none &trans
-        &tog NUM &none &none &kp LC(LS(C)) &kp LC(BSPC) &paste_hold_tap LG(V) LC(LS(V)) &none &none     &none &none &none &none &kp COMMA &kp DOT &none &tog NUM
-                           &none &none &none &escape_k_zero &ctrl_space_slash              &trans &none &trans &none &none
-
-        &none &none &none &none &none                                                         &none &none &none &none &none
       >;
       sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
     };
