@@ -280,10 +280,10 @@
     nav_layer {
       display-name = "Nav";
       bindings = <
-        &trans &none &none &none &none &none                                                &none &none &kp PAGE_UP &none &none &trans
-        &escape_main MAIN ESC &none &none &none &none &none                               &none &kp HOME &kp UP_ARROW &kp END &none &none
+        &trans &none &none &none &none &none                                                &none &none &none &none &none &trans
+        &escape_main MAIN ESC &none &none &none &none &none                               &kp PAGE_UP &kp HOME &kp UP_ARROW &kp END &none &none
         &sl UMLAUT &sk LGUI &sk LALT &sk LCTRL &sk LSHIFT &none                               &none &kp LEFT_ARROW &kp DOWN &kp RIGHT &none &trans
-        &tog NAV &none &none &kp LC(LS(C)) &kp LC(BSPC) &paste_hold_tap LG(V) LC(LS(V)) &none &none    &none &none &none &kp LC(LEFT_ARROW) &kp PAGE_DOWN &kp LC(RIGHT_ARROW) &none &tog NAV
+        &tog NAV &none &none &kp LC(LS(C)) &kp LC(BSPC) &paste_hold_tap LG(V) LC(LS(V)) &none &none    &none &none &kp PAGE_DOWN &kp LC(LEFT_ARROW) &none &kp LC(RIGHT_ARROW) &none &tog NAV
                            &none &none &none &none &none                              &trans &mo SPECIAL &trans &none &none
 
         &none &none &none &none &none                                                         &none &none &none &none &none
