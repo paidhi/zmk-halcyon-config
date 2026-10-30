@@ -1,0 +1,21 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
+
+/ {
+    behaviors {
+        /* Lighting controls, handled on the central. */
+        lit: lit {
+            compatible = "elora,behavior-lighting";
+            #binding-cells = <1>;
+        };
+
+        /* Snapshot transfer to the peripheral, not for keymap use. The
+         * name travels over the split link and must stay within eight
+         * characters. */
+        lit_sync: lit_sync {
+            compatible = "elora,behavior-lighting-sync";
+            #binding-cells = <2>;
+        };
+    };
+};

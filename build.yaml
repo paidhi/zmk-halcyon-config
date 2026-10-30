@@ -3,8 +3,7 @@ include:
   - board: halcyon_wireless//zmk
     shield: halcyon_elora_left mod_battery_lipo mod_display_epaper_mountain
     artifact-name: halcyon_elora_left_lipo_epaper_mountain
-    cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y -DCONFIG_ZMK_STUDIO=y
-    snippet: studio-rpc-usb-uart
+    cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y
 
   - board: halcyon_wireless//zmk
     shield: halcyon_elora_right mod_battery_lipo mod_display_epaper_cityscape

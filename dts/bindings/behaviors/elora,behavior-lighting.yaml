@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+
+description: Elora lighting controls (LIT_ON, LIT_OFF, LIT_BRI, LIT_BRD)
+
+compatible: "elora,behavior-lighting"
+
+include: one_param.yaml

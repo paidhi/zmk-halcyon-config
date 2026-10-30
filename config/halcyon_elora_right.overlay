@@ -1,0 +1,10 @@
+/*
+ * Right half LED chain: pixels 0-5 are underglow, 6-36 sit under the keys.
+ * Measured with the LED mapping diagnostic.
+ */
+
+/ {
+  elora_lighting {
+    underglow-pixels = <0 1 2 3 4 5>;
+  };
+};

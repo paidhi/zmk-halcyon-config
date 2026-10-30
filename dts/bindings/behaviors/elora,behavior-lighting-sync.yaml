@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+
+description: Elora lighting snapshot transfer from the central to a peripheral
+
+compatible: "elora,behavior-lighting-sync"
+
+include: two_param.yaml

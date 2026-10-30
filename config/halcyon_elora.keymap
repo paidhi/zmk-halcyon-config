@@ -7,10 +7,11 @@
  */
 
 #include <behaviors.dtsi>
+#include <behaviors/elora_lighting.dtsi>
+#include <dt-bindings/elora/lighting.h>
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/outputs.h>
-#include <dt-bindings/zmk/rgb.h>
 
 // Mouse sits below the functional layers so they override its shortcuts.
 #define MAIN     0
@@ -35,6 +36,23 @@
 #define THUMBS_R 57 58 59 60 61
 
 / {
+  // Underglow color per layer, in layer ID order, as 0xRRGGBB at full scale.
+  // Brightness scales these values; Main stays dark.
+  elora_lighting {
+    compatible = "elora,lighting";
+    layer-colors = <
+      0x000000 // MAIN: off
+      0x806040 // TYPING: dim warm white
+      0xff00ff // MOUSE: magenta
+      0x00ffff // NAV: cyan
+      0x0000ff // NUM: blue
+      0x00ff00 // SPECIAL: green
+      0xff8000 // SYSMEDIA: amber
+      0x8000ff // UMLAUT: violet
+      0xff0000 // ADJUST: red
+    >;
+  };
+
   behaviors {
     escape_main: escape_main {
       compatible = "zmk,behavior-hold-tap";
@@ -324,9 +342,9 @@
       display-name = "SysMedia";
       bindings = <
         &trans &trans &trans &trans &trans &trans                                            &trans &trans &trans &trans &trans &trans
-        &escape_main MAIN ESC &none &none &kp F &kp LEFT &kp RIGHT                             &none &none &kp C_VOL_UP &none &rgb_ug RGB_TOG &sysmedia_off SYSMEDIA
-        &trans &none &kp LS(LA(C)) &kp T &kp J &kp L                                         &none &none &kp C_PLAY_PAUSE &none &rgb_ug RGB_BRI &rgb_ug RGB_EFF
-        &kp LC(W) &none &none &kp C &kp LC(LEFT) &kp LC(RIGHT) &trans &trans       &none &none &kp LC(LS(M)) &kp C_MUTE &kp C_VOL_DN &none &rgb_ug RGB_BRD &rgb_ug RGB_EFR
+        &escape_main MAIN ESC &none &none &kp F &kp LEFT &kp RIGHT                             &none &none &kp C_VOL_UP &none &none &sysmedia_off SYSMEDIA
+        &trans &none &kp LS(LA(C)) &kp T &kp J &kp L                                         &none &none &kp C_PLAY_PAUSE &none &none &none
+        &kp LC(W) &none &none &kp C &kp LC(LEFT) &kp LC(RIGHT) &trans &trans       &none &none &kp LC(LS(M)) &kp C_MUTE &kp C_VOL_DN &none &none &none
                            &none &none &none &kp SPACE &kp SPACE       &kp SPACE &kp SPACE &none &kp LEFT &kp RIGHT
 
         &none &none &none &none &none                                                         &none &none &none &none &none
@@ -349,10 +367,10 @@
     adjust_layer {
       display-name = "Adjust";
       bindings = <
-        &trans      &trans &trans     &trans       &trans       &studio_unlock                             &trans          &trans          &trans          &trans          &trans          &trans
+        &trans      &trans &trans     &trans       &trans       &none                                      &trans          &trans          &trans          &trans          &trans          &trans
         &bootloader &trans &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2                               &out OUT_TOG    &trans          &trans          &trans          &trans          &bootloader
-        &trans      &trans &trans     &bt BT_SEL 3 &bt BT_SEL 4 &trans                                     &rgb_ug RGB_ON  &rgb_ug RGB_SAI &rgb_ug RGB_HUI &rgb_ug RGB_BRI &rgb_ug RGB_EFF &trans
-        &trans      &trans &trans     &trans       &trans       &trans       &trans &trans   &trans &trans &rgb_ug RGB_OFF &rgb_ug RGB_SAD &rgb_ug RGB_HUD &rgb_ug RGB_BRD &rgb_ug RGB_EFR &trans
+        &trans      &trans &trans     &bt BT_SEL 3 &bt BT_SEL 4 &trans                                     &lit LIT_ON     &none           &none           &lit LIT_BRI    &none           &trans
+        &trans      &trans &trans     &trans       &trans       &trans       &trans &trans   &trans &trans &lit LIT_OFF    &none           &none           &lit LIT_BRD    &none           &trans
                                    &trans       &trans       &trans &trans   &trans &trans &trans &trans   &trans          &trans
 
         &trans &trans &trans &trans &trans                                                                 &trans &trans &trans &trans &trans

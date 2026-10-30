@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MIT
+
+description: Elora layer lighting data
+
+compatible: "elora,lighting"
+
+properties:
+  layer-colors:
+    type: array
+    required: true
+    description: |
+      Underglow color per keymap layer ID as 0xRRGGBB at full scale. The
+      brightness setting scales these values; 0 keeps the underglow dark.
+
+  underglow-pixels:
+    type: array
+    description: |
+      Indices of this half's underglow pixels in the zmk,underglow chain. Set
+      per half in the config overlays; required when ELORA_LIGHTING is on.

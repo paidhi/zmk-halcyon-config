@@ -1,0 +1,65 @@
+# Personal Elora lighting module.
+
+DT_CHOSEN_ZMK_UNDERGLOW := zmk,underglow
+
+config ELORA_LIGHTING
+    bool "Layer lighting"
+    depends on $(dt_chosen_enabled,$(DT_CHOSEN_ZMK_UNDERGLOW))
+    depends on !ZMK_RGB_UNDERGLOW && !ZMK_EXT_POWER
+    select LED_STRIP
+    select GPIO
+    help
+        Shows the highest active layer on the underglow pixels and keeps the
+        key pixels dark. The central owns the lighting state and sends it to
+        the peripheral as one snapshot. Replaces the stock RGB renderer and
+        drives the LED supply pin directly, without the ext-power driver.
+
+if ELORA_LIGHTING
+
+config ELORA_LIGHTING_IDLE_TIMEOUT_MS
+    int "Milliseconds without key or layer activity before the lights go dark"
+    default 30000
+
+config ELORA_LIGHTING_BRT_MIN
+    int "Lowest brightness in percent"
+    range 1 100
+    default 5
+
+config ELORA_LIGHTING_BRT_MAX
+    int "Highest brightness in percent"
+    range 1 100
+    default 25
+
+config ELORA_LIGHTING_BRT_STEP
+    int "Brightness step in percentage points"
+    range 1 100
+    default 5
+
+config ELORA_LIGHTING_BRT_START
+    int "Brightness in percent until a stored value exists"
+    range 1 100
+    default 10
+
+endif
+
+config ELORA_LIGHTING_MAP_DIAG
+    bool "LED chain mapping diagnostic"
+    depends on $(dt_chosen_enabled,$(DT_CHOSEN_ZMK_UNDERGLOW))
+    depends on !ZMK_RGB_UNDERGLOW && !ZMK_EXT_POWER && !ELORA_LIGHTING
+    select LED_STRIP
+    select GPIO
+    help
+        Lights one pixel of the zmk,underglow chain at a time and logs the
+        key the user presses for it. Every key press is consumed, so an
+        image with this option is only for a mapping session. The LED
+        supply pin is driven directly, without the ext-power driver and its
+        saved settings.
+
+if ELORA_LIGHTING_MAP_DIAG
+
+config ELORA_LIGHTING_MAP_DIAG_LEVEL
+    int "Per-channel level of the lit pixel"
+    range 1 255
+    default 32
+
+endif
