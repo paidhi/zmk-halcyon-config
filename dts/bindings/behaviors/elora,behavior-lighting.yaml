@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 
-description: Elora lighting controls (LIT_ON, LIT_OFF, LIT_BRI, LIT_BRD)
+description: Elora lighting controls (LIT_ON, LIT_OFF, LIT_BRI, LIT_BRD, LIT_KEYS_ON,
+  LIT_KEYS_OFF)
 
 compatible: "elora,behavior-lighting"
 

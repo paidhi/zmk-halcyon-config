@@ -9,8 +9,8 @@ config ELORA_LIGHTING
     select LED_STRIP
     select GPIO
     help
-        Shows the highest active layer on the underglow pixels and keeps the
-        key pixels dark. The central owns the lighting state and sends it to
+        Shows the highest active layer on the underglow pixels and, while
+        per-key colors are on, role colors on the key pixels. The central owns the lighting state and sends it to
         the peripheral as one snapshot. Replaces the stock RGB renderer and
         drives the LED supply pin directly, without the ext-power driver.
 

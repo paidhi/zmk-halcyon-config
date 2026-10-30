@@ -4,9 +4,12 @@
  * Layer lighting renderer, shared by both halves.
  *
  * Writes the full chain on every change: the underglow pixels get the color
- * of the highest active layer, scaled by brightness, and every other pixel is
- * black. The LED supply is switched off whenever nothing is lit. The
- * peripheral receives its state through the lit_sync behavior.
+ * of the highest active layer (unless its key colors replace it) and, with
+ * per-key colors on, each key pixel
+ * gets the color of its key's role on the active layers, all scaled by
+ * brightness. Every other pixel is black. The LED supply is switched off
+ * whenever nothing is lit. The peripheral receives its state through the
+ * lit_sync behavior.
  */
 
 #define DT_DRV_COMPAT elora_behavior_lighting_sync
@@ -28,6 +31,8 @@
 #include <zmk/behavior.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/activity_state_changed.h>
+#include <zmk/keymap.h>
+#include <zmk/matrix.h>
 #if IS_ENABLED(CONFIG_ZMK_SPLIT) && !IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
 #include <zmk/events/split_peripheral_status_changed.h>
 #endif
@@ -44,26 +49,51 @@ LOG_MODULE_REGISTER(elora_lighting, CONFIG_ZMK_LOG_LEVEL);
 
 BUILD_ASSERT(DT_NODE_HAS_PROP(DATA_NODE, underglow_pixels),
              "elora_lighting needs underglow-pixels in this half's config overlay");
-
-/* Snapshot layout, see plans/elora-layer-rgb.md in the parent workspace. */
-#define SNAPSHOT_VERSION 1
-#define P1_LAYERS_MASK 0x0000ffffu
-#define P1_TOP_SHIFT 16
-#define P1_TOP_MASK 0x000f0000u
-#define P1_SEQ_MASK 0xff000000u
-#define P1_SEQ_SHIFT 24
-#define P2_ENABLED BIT(0)
-#define P2_AWAKE BIT(1)
-#define P2_PER_KEY BIT(2)
-#define P2_BRT_SHIFT 8
-#define P2_BRT_MASK 0x0000ff00u
-#define P2_VERSION_SHIFT 28
-#define P2_VERSION_MASK 0xf0000000u
+BUILD_ASSERT(DT_NODE_HAS_PROP(DATA_NODE, key_pixels) &&
+                 DT_PROP_LEN(DATA_NODE, key_pixels) % 2 == 0,
+             "elora_lighting needs key-pixels pairs in this half's config overlay");
+BUILD_ASSERT(ZMK_KEYMAP_LAYERS_LEN <= 16, "the snapshot carries at most 16 layers");
+BUILD_ASSERT(ZMK_KEYMAP_LEN <= UINT8_MAX, "key positions must fit in a byte");
 
 static const struct device *const strip = DEVICE_DT_GET(STRIP_NODE);
 static const struct gpio_dt_spec supply = GPIO_DT_SPEC_GET_BY_IDX(SUPPLY_NODE, control_gpios, 0);
 static const uint32_t layer_colors[] = DT_PROP(DATA_NODE, layer_colors);
 static const uint8_t underglow_pixels[] = DT_PROP(DATA_NODE, underglow_pixels);
+/* Pairs of pixel index and key position. */
+static const uint8_t key_pixels[] = DT_PROP(DATA_NODE, key_pixels);
+
+/* Layers whose underglow stays dark while per-key colors are on. */
+#define LAYER_BIT(node, prop, idx) | BIT(DT_PROP_BY_IDX(node, prop, idx))
+static const uint16_t keys_replace_underglow =
+    0 COND_CODE_1(DT_NODE_HAS_PROP(DATA_NODE, keys_replace_underglow),
+                  (DT_FOREACH_PROP_ELEM(DATA_NODE, keys_replace_underglow, LAYER_BIT)), ());
+
+/* Binding kinds from the compiled keymap, in layer ID order. */
+#define BINDING_IS(layer, idx, label)                                                              \
+    DT_SAME_NODE(DT_PHANDLE_BY_IDX(layer, bindings, idx), DT_NODELABEL(label))
+#define BINDING_KIND(idx, layer)                                                                   \
+    (BINDING_IS(layer, idx, trans)  ? ELORA_KEY_TRANS                                              \
+     : BINDING_IS(layer, idx, none) ? ELORA_KEY_NONE                                               \
+                                    : ELORA_KEY_BOUND)
+#define LAYER_KINDS(layer) {LISTIFY(DT_PROP_LEN(layer, bindings), BINDING_KIND, (, ), layer)}
+
+static const uint8_t key_kinds[ZMK_KEYMAP_LAYERS_LEN][ZMK_KEYMAP_LEN] = {
+    ZMK_KEYMAP_LAYERS_FOREACH_SEP(LAYER_KINDS, (, ))};
+
+/* Key colors from the role groups under the elora_lighting node. */
+#define ROLE_KEY(group, prop, idx)                                                                 \
+    [DT_PROP(group, layer)][DT_PROP_BY_IDX(group, prop, idx)] = DT_PROP(group, color),
+#define ROLE_GROUP(group) DT_FOREACH_PROP_ELEM(group, positions, ROLE_KEY)
+
+static const uint32_t key_colors[ZMK_KEYMAP_LAYERS_LEN][ZMK_KEYMAP_LEN] = {
+    DT_FOREACH_CHILD(DATA_NODE, ROLE_GROUP)};
+
+static const struct elora_lighting_keymap role_map = {
+    .layers = ZMK_KEYMAP_LAYERS_LEN,
+    .positions = ZMK_KEYMAP_LEN,
+    .kinds = &key_kinds[0][0],
+    .colors = &key_colors[0][0],
+};
 
 /* State requested by the central (or decoded from a snapshot), guarded by
  * lock because events, the split link, and work items all update it. */
@@ -77,38 +107,22 @@ static struct led_rgb pixels[NUM_PIXELS];
 static bool supply_on;
 static int64_t supply_ready_at;
 
-void elora_lighting_encode(const struct elora_lighting_state *state, uint8_t sequence,
-                           uint32_t *param1, uint32_t *param2) {
-    *param1 = state->layers | ((uint32_t)(state->top_layer & 0xf) << P1_TOP_SHIFT) |
-              ((uint32_t)sequence << P1_SEQ_SHIFT);
-    *param2 = (state->enabled ? P2_ENABLED : 0) | (state->awake ? P2_AWAKE : 0) |
-              (state->per_key ? P2_PER_KEY : 0) | ((uint32_t)state->brightness << P2_BRT_SHIFT) |
-              ((uint32_t)SNAPSHOT_VERSION << P2_VERSION_SHIFT);
-}
-
-int elora_lighting_decode(uint32_t param1, uint32_t param2, struct elora_lighting_state *state) {
-    const uint32_t p1_known = P1_LAYERS_MASK | P1_TOP_MASK | P1_SEQ_MASK;
-    const uint32_t p2_known = P2_ENABLED | P2_AWAKE | P2_PER_KEY | P2_BRT_MASK | P2_VERSION_MASK;
-
-    if ((param2 >> P2_VERSION_SHIFT) != SNAPSHOT_VERSION || (param1 & ~p1_known) ||
-        (param2 & ~p2_known)) {
-        return -EINVAL;
+static bool set_pixel(uint8_t index, uint32_t color) {
+    if (index >= NUM_PIXELS) {
+        return false;
     }
 
-    *state = (struct elora_lighting_state){
-        .layers = param1 & P1_LAYERS_MASK,
-        .top_layer = (param1 & P1_TOP_MASK) >> P1_TOP_SHIFT,
-        .enabled = param2 & P2_ENABLED,
-        .awake = param2 & P2_AWAKE,
-        .per_key = param2 & P2_PER_KEY,
-        .brightness = (param2 & P2_BRT_MASK) >> P2_BRT_SHIFT,
+    pixels[index] = (struct led_rgb){
+        .r = (color >> 16) & 0xff,
+        .g = (color >> 8) & 0xff,
+        .b = color & 0xff,
     };
-    return 0;
+    return color != 0;
 }
 
-/* Underglow color for the requested state, scaled by brightness; 0 when
- * nothing should be lit. */
-static uint32_t underglow_color(void) {
+/* Compose the frame for the requested state; returns whether any pixel is
+ * lit. */
+static bool compose(void) {
     struct elora_lighting_state state;
     bool lit;
 
@@ -117,31 +131,35 @@ static uint32_t underglow_color(void) {
         lit = have_state && !suspended;
     }
 
-    if (!lit || !state.enabled || !state.awake || state.top_layer >= ARRAY_SIZE(layer_colors)) {
-        return 0;
+    memset(pixels, 0, sizeof(pixels));
+    if (!lit || !state.enabled || !state.awake) {
+        return false;
     }
 
-    uint32_t color = layer_colors[state.top_layer];
-    uint32_t percent = MIN(state.brightness, CONFIG_ELORA_LIGHTING_BRT_MAX);
-    uint32_t r = ((color >> 16) & 0xff) * percent / 100;
-    uint32_t g = ((color >> 8) & 0xff) * percent / 100;
-    uint32_t b = (color & 0xff) * percent / 100;
+    uint8_t percent = MIN(state.brightness, CONFIG_ELORA_LIGHTING_BRT_MAX);
+    bool any = false;
 
-    return (r << 16) | (g << 8) | b;
-}
+    bool replaced = state.per_key && (keys_replace_underglow & BIT(state.top_layer));
 
-static void fill(uint32_t color) {
-    memset(pixels, 0, sizeof(pixels));
-    for (size_t i = 0; i < ARRAY_SIZE(underglow_pixels); i++) {
-        if (underglow_pixels[i] < NUM_PIXELS) {
-            pixels[underglow_pixels[i]] = (struct led_rgb){
-                .r = (color >> 16) & 0xff,
-                .g = (color >> 8) & 0xff,
-                .b = color & 0xff,
-            };
+    if (state.top_layer < ARRAY_SIZE(layer_colors) && !replaced) {
+        uint32_t color = elora_lighting_scale(layer_colors[state.top_layer], percent);
+        for (size_t i = 0; i < ARRAY_SIZE(underglow_pixels); i++) {
+            any |= set_pixel(underglow_pixels[i], color);
         }
     }
 
+    if (state.per_key) {
+        for (size_t i = 0; i < ARRAY_SIZE(key_pixels); i += 2) {
+            uint32_t color = elora_lighting_key_color(&role_map, state.layers, key_pixels[i + 1]);
+
+            any |= set_pixel(key_pixels[i], elora_lighting_scale(color, percent));
+        }
+    }
+
+    return any;
+}
+
+static void write_frame(void) {
     int err = led_strip_update_rgb(strip, pixels, NUM_PIXELS);
     if (err) {
         LOG_ERR("LED strip update failed (%d)", err);
@@ -152,11 +170,9 @@ static void render_work_cb(struct k_work *work);
 static K_WORK_DELAYABLE_DEFINE(render_work, render_work_cb);
 
 static void render_work_cb(struct k_work *work) {
-    uint32_t color = underglow_color();
-
-    if (color == 0) {
+    if (!compose()) {
         if (supply_on) {
-            fill(0);
+            write_frame();
             gpio_pin_set_dt(&supply, 0);
             supply_on = false;
         }
@@ -175,7 +191,7 @@ static void render_work_cb(struct k_work *work) {
         return;
     }
 
-    fill(color);
+    write_frame();
 }
 
 /* Does not shorten a pending wait for the supply to settle. */
@@ -240,6 +256,23 @@ static int lighting_init(void) {
         }
     }
 
+    for (size_t i = 0; i < ARRAY_SIZE(key_pixels); i += 2) {
+        if (key_pixels[i] >= NUM_PIXELS || key_pixels[i + 1] >= ZMK_KEYMAP_LEN) {
+            LOG_ERR("key pixel %d at position %d is outside the chain or keymap", key_pixels[i],
+                    key_pixels[i + 1]);
+        }
+    }
+
+    /* A role on &trans or &none never shows; flag it as a keymap mistake. */
+    for (size_t layer = 0; layer < ZMK_KEYMAP_LAYERS_LEN; layer++) {
+        for (size_t position = 0; position < ZMK_KEYMAP_LEN; position++) {
+            if (key_colors[layer][position] && key_kinds[layer][position] != ELORA_KEY_BOUND) {
+                LOG_WRN("layer %d position %d has a role but no binding", (int)layer,
+                        (int)position);
+            }
+        }
+    }
+
     return 0;
 }
 
@@ -256,9 +289,9 @@ static int lit_sync_pressed(struct zmk_behavior_binding *binding,
         return ZMK_BEHAVIOR_OPAQUE;
     }
 
-    LOG_DBG("snapshot %u: layer %u, enabled %d, awake %d, brightness %u",
-            binding->param1 >> P1_SEQ_SHIFT, state.top_layer, state.enabled, state.awake,
-            state.brightness);
+    LOG_DBG("snapshot %u: layer %u, enabled %d, awake %d, per-key %d, brightness %u",
+            elora_lighting_sequence(binding->param1), state.top_layer, state.enabled, state.awake,
+            state.per_key, state.brightness);
     elora_lighting_show(&state);
     return ZMK_BEHAVIOR_OPAQUE;
 }

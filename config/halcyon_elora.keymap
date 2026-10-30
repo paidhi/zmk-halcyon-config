@@ -35,22 +35,77 @@
 #define THUMBS_L 52 53 54 55 56
 #define THUMBS_R 57 58 59 60 61
 
+// Lighting colors as 0xRRGGBB at full scale; brightness scales them.
+// Underglow per layer:
+#define GLOW_MAIN     0x000000 // off
+#define GLOW_TYPING   0x806040 // dim warm white
+#define GLOW_MOUSE    0xff00ff // magenta
+#define GLOW_NAV      0x00ffff // cyan
+#define GLOW_NUM      0x0000ff // blue
+#define GLOW_SPECIAL  0x00ff00 // green
+#define GLOW_SYSMEDIA 0xff8000 // amber
+#define GLOW_UMLAUT   0x8000ff // violet
+#define GLOW_ADJUST   0xff0000 // red
+// Key roles, reused across layers. Colors only need to differ within one
+// layer, so roles on different layers may share a color:
+#define KEY_ARROW     0xff00ff // magenta, apart from the cyan jumps around them
+#define KEY_JUMP      0x00ffff // cyan: page, line, word, and document jumps; seek
+#define KEY_SELECT    0xc0c0c0 // white: selection
+#define KEY_DIGIT     0xc0c0c0 // white: digits, comma, and dot
+#define KEY_SHORTCUT  0xc0c0c0 // white: player shortcuts
+#define KEY_MEDIA     0x00ff00 // green: volume, mute, play/pause
+#define KEY_FUNCTION  0x0000ff // blue: F-keys
+#define KEY_MODIFIER  0xffc000 // yellow: sticky modifiers
+#define KEY_EDIT      0xff4000 // orange: clipboard, editing, and closing
+#define KEY_EXIT      0xff0000 // red: back to Main, layer toggles
+#define KEY_MACRO     0xff00ff // magenta: macros
+#define KEY_PROFILE   0x0000ff // blue: Bluetooth profiles
+#define KEY_OUTPUT    0x00ff00 // green: USB/BLE output
+#define KEY_LIGHTING  0xff8000 // amber: lighting controls
+#define KEY_SYSTEM    0xff0000 // red: bootloader, Bluetooth clear
+// Layer-access keys use the underglow color of the layer they open.
+
 / {
-  // Underglow color per layer, in layer ID order, as 0xRRGGBB at full scale.
-  // Brightness scales these values; Main stays dark.
+  // Underglow color per layer, in layer ID order. Main stays dark, and so do
+  // the keys-replace-underglow layers while key colors are on.
+  // Each child gives keys on one layer a role color; every other key stays
+  // dark, and &trans keys show the next active layer's role.
   elora_lighting {
     compatible = "elora,lighting";
-    layer-colors = <
-      0x000000 // MAIN: off
-      0x806040 // TYPING: dim warm white
-      0xff00ff // MOUSE: magenta
-      0x00ffff // NAV: cyan
-      0x0000ff // NUM: blue
-      0x00ff00 // SPECIAL: green
-      0xff8000 // SYSMEDIA: amber
-      0x8000ff // UMLAUT: violet
-      0xff0000 // ADJUST: red
-    >;
+    layer-colors = <GLOW_MAIN GLOW_TYPING GLOW_MOUSE GLOW_NAV GLOW_NUM GLOW_SPECIAL
+                    GLOW_SYSMEDIA GLOW_UMLAUT GLOW_ADJUST>;
+    keys-replace-underglow = <NAV NUM SPECIAL SYSMEDIA ADJUST>;
+
+    nav_arrows { layer = <NAV>; color = <KEY_ARROW>; positions = <20 31 32 33>; };
+    nav_jumps { layer = <NAV>; color = <KEY_JUMP>; positions = <18 19 21 46 47 49>; };
+    nav_modifiers { layer = <NAV>; color = <KEY_MODIFIER>; positions = <25 26 27 28>; };
+    nav_edit { layer = <NAV>; color = <KEY_EDIT>; positions = <39 40 41>; };
+    nav_exits { layer = <NAV>; color = <KEY_EXIT>; positions = <12 36 51>; };
+    nav_umlaut { layer = <NAV>; color = <GLOW_UMLAUT>; positions = <24>; };
+    nav_special { layer = <NAV>; color = <GLOW_SPECIAL>; positions = <58>; };
+
+    num_digits { layer = <NUM>; color = <KEY_DIGIT>; positions = <13 14 15 16 17 18 19 20 21 22 48 49>; };
+    num_functions { layer = <NUM>; color = <KEY_FUNCTION>; positions = <1 2 3 4 5 6 7 8 9 10>; };
+    num_modifiers { layer = <NUM>; color = <KEY_MODIFIER>; positions = <25 26 27 28>; };
+    num_edit { layer = <NUM>; color = <KEY_EDIT>; positions = <39 40 41>; };
+    num_exits { layer = <NUM>; color = <KEY_EXIT>; positions = <12 36 51>; };
+    num_umlaut { layer = <NUM>; color = <GLOW_UMLAUT>; positions = <24>; };
+    num_macros { layer = <NUM>; color = <KEY_MACRO>; positions = <55 56>; };
+
+    special_selection { layer = <SPECIAL>; color = <KEY_SELECT>; positions = <18 20 31 32 33 46>; };
+    special_jumps { layer = <SPECIAL>; color = <KEY_JUMP>; positions = <19 21>; };
+    special_exits { layer = <SPECIAL>; color = <KEY_EXIT>; positions = <12 36>; };
+
+    sysmedia_media { layer = <SYSMEDIA>; color = <KEY_MEDIA>; positions = <20 32 47 48>; };
+    sysmedia_seek { layer = <SYSMEDIA>; color = <KEY_JUMP>; positions = <16 17 28 29 40 41 60 61>; };
+    sysmedia_shortcuts { layer = <SYSMEDIA>; color = <KEY_SHORTCUT>; positions = <15 26 27 39 46 55 56 57 58>; };
+    sysmedia_close { layer = <SYSMEDIA>; color = <KEY_EDIT>; positions = <36>; };
+    sysmedia_exits { layer = <SYSMEDIA>; color = <KEY_EXIT>; positions = <12 23>; };
+
+    adjust_profiles { layer = <ADJUST>; color = <KEY_PROFILE>; positions = <15 16 17 27 28>; };
+    adjust_output { layer = <ADJUST>; color = <KEY_OUTPUT>; positions = <18>; };
+    adjust_lighting { layer = <ADJUST>; color = <KEY_LIGHTING>; positions = <30 33 34 46 49 50>; };
+    adjust_system { layer = <ADJUST>; color = <KEY_SYSTEM>; positions = <12 14 23>; };
   };
 
   behaviors {
@@ -369,8 +424,8 @@
       bindings = <
         &trans      &trans &trans     &trans       &trans       &none                                      &trans          &trans          &trans          &trans          &trans          &trans
         &bootloader &trans &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2                               &out OUT_TOG    &trans          &trans          &trans          &trans          &bootloader
-        &trans      &trans &trans     &bt BT_SEL 3 &bt BT_SEL 4 &trans                                     &lit LIT_ON     &none           &none           &lit LIT_BRI    &none           &trans
-        &trans      &trans &trans     &trans       &trans       &trans       &trans &trans   &trans &trans &lit LIT_OFF    &none           &none           &lit LIT_BRD    &none           &trans
+        &trans      &trans &trans     &bt BT_SEL 3 &bt BT_SEL 4 &trans                                     &lit LIT_ON     &none           &none           &lit LIT_BRI    &lit LIT_KEYS_ON &trans
+        &trans      &trans &trans     &trans       &trans       &trans       &trans &trans   &trans &trans &lit LIT_OFF    &none           &none           &lit LIT_BRD    &lit LIT_KEYS_OFF &trans
                                    &trans       &trans       &trans &trans   &trans &trans &trans &trans   &trans          &trans
 
         &trans &trans &trans &trans &trans                                                                 &trans &trans &trans &trans &trans

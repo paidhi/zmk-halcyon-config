@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 
-description: Elora layer lighting data
+description: |
+  Elora layer lighting data. Each child node gives a group of keys on one
+  layer a shared color for its role.
 
 compatible: "elora,lighting"
 
@@ -17,3 +19,33 @@ properties:
     description: |
       Indices of this half's underglow pixels in the zmk,underglow chain. Set
       per half in the config overlays; required when ELORA_LIGHTING is on.
+
+  keys-replace-underglow:
+    type: array
+    description: |
+      Layer IDs whose underglow stays dark while per-key colors are on,
+      because their key colors already identify the layer.
+
+  key-pixels:
+    type: array
+    description: |
+      Pairs of pixel index and keymap position for this half's key pixels.
+      Set per half in the config overlays; required when ELORA_LIGHTING is on.
+
+child-binding:
+  description: Keys on one layer that light in one role color
+  properties:
+    layer:
+      type: int
+      required: true
+      description: Keymap layer ID
+    color:
+      type: int
+      required: true
+      description: |
+        Role color as 0xRRGGBB at full scale, scaled by the brightness
+        setting like the underglow.
+    positions:
+      type: array
+      required: true
+      description: Keymap positions of the keys on that layer

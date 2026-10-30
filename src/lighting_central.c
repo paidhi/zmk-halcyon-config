@@ -3,8 +3,8 @@
  *
  * Layer lighting state on the central.
  *
- * Tracks the highest active layer, the user's on/off and brightness settings,
- * and a lighting idle timer fed by key presses from both halves. Every change
+ * Tracks the active layers, the user's on/off, per-key, and brightness
+ * settings, and a lighting idle timer fed by key presses from both halves. Every change
  * renders locally and sends one complete snapshot to each peripheral through
  * the lit_sync behavior. The split link can drop a command while a
  * peripheral is still being discovered, so a new split connection triggers a
@@ -12,6 +12,8 @@
  */
 
 #define DT_DRV_COMPAT elora_behavior_lighting
+
+#include <stddef.h>
 
 #include <zephyr/device.h>
 #include <zephyr/kernel.h>
@@ -52,14 +54,19 @@ BUILD_ASSERT(CONFIG_ELORA_LIGHTING_BRT_MIN <= CONFIG_ELORA_LIGHTING_BRT_START &&
 
 #define RESEND_COUNT 4
 
+/* Stored as is; records saved before per_key existed end after brightness. */
 struct lighting_settings {
     uint8_t enabled;
     uint8_t brightness;
+    uint8_t per_key;
 };
+
+#define SETTINGS_V1_LEN offsetof(struct lighting_settings, per_key)
 
 static struct lighting_settings settings = {
     .enabled = 1,
     .brightness = CONFIG_ELORA_LIGHTING_BRT_START,
+    .per_key = 1,
 };
 static atomic_t awake = ATOMIC_INIT(1);
 static uint8_t sequence;
@@ -70,7 +77,7 @@ static void publish_work_cb(struct k_work *work) {
         .top_layer = zmk_keymap_layer_index_to_id(zmk_keymap_highest_layer_active()),
         .enabled = settings.enabled,
         .awake = atomic_get(&awake),
-        .per_key = false,
+        .per_key = settings.per_key,
         .brightness = settings.brightness,
     };
 
@@ -156,14 +163,15 @@ static int settings_set_cb(const char *name, size_t len, settings_read_cb read_c
         return -ENOENT;
     }
 
-    struct lighting_settings stored;
-    if (len != sizeof(stored) || read_cb(cb_arg, &stored, sizeof(stored)) != sizeof(stored)) {
+    struct lighting_settings stored = settings;
+    if ((len != sizeof(stored) && len != SETTINGS_V1_LEN) || read_cb(cb_arg, &stored, len) != len) {
         return -EINVAL;
     }
 
     settings.enabled = stored.enabled ? 1 : 0;
     settings.brightness =
         CLAMP(stored.brightness, CONFIG_ELORA_LIGHTING_BRT_MIN, CONFIG_ELORA_LIGHTING_BRT_MAX);
+    settings.per_key = stored.per_key ? 1 : 0;
     return 0;
 }
 
@@ -234,6 +242,12 @@ static int lit_pressed(struct zmk_behavior_binding *binding,
     case LIT_BRD:
         settings.brightness = MAX(settings.brightness - CONFIG_ELORA_LIGHTING_BRT_STEP,
                                   CONFIG_ELORA_LIGHTING_BRT_MIN);
+        break;
+    case LIT_KEYS_ON:
+        settings.per_key = 1;
+        break;
+    case LIT_KEYS_OFF:
+        settings.per_key = 0;
         break;
     default:
         return -ENOTSUP;
