@@ -249,9 +249,33 @@
       hold-trigger-on-release;
       bindings = <&kp>, <&kp>;
     };
+
+    // Hold runs alt_tab; its parameter is unused.
+    alt_tab_mt: alt_tab_mod_tap {
+      compatible = "zmk,behavior-hold-tap";
+      #binding-cells = <2>;
+      flavor = "tap-preferred";
+      tapping-term-ms = <200>;
+      bindings = <&alt_tab>, <&kp>;
+    };
   };
 
   macros {
+    // Hold Alt for the whole key hold but tap Tab once, so Tab never
+    // autorepeats and Alt is down before Tab arrives.
+    alt_tab: alt_tab {
+      compatible = "zmk,behavior-macro";
+      #binding-cells = <0>;
+      wait-ms = <30>;
+      tap-ms = <30>;
+      bindings
+        = <&macro_press &kp LALT>
+        , <&macro_tap &kp TAB>
+        , <&macro_pause_for_release>
+        , <&macro_release &kp LALT>
+        ;
+    };
+
     escape_k_zero: escape_k_zero {
       compatible = "zmk,behavior-macro";
       #binding-cells = <0>;
@@ -314,9 +338,9 @@
       bindings = <
         &kp ESC   &kp N1 &kp N2 &kp N3 &kp N4 &kp N5                                               &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &kp BSPC
         &kp ESC   &kp Q  &kp W  &kp F  &kp P  &kp B                                                &kp J  &kp L  &kp U  &kp Y  &punctuation_hold_tap COLON SEMI &sysmedia_access
-        &mt LA(TAB) TAB   &left_hrm LGUI A &left_hrm LALT R &left_hrm LCTRL S &left_hrm LSHIFT T &kp G   &kp M &right_hrm RSHIFT N &right_hrm RCTRL E &right_hrm LALT I &right_hrm RGUI O &kp RET
+        &alt_tab_mt 0 TAB   &left_hrm LGUI A &left_hrm LALT R &left_hrm LCTRL S &left_hrm LSHIFT T &kp G   &kp M &right_hrm RSHIFT N &right_hrm RCTRL E &right_hrm LALT I &right_hrm RGUI O &kp RET
         &kp DEL   &kp Z &kp X &kp C &kp D &kp V &kp C_VOL_DN &kp C_VOL_UP   &mo ADJUST &to TYPING    &kp K &kp H &punctuation_hold_tap LESS_THAN COMMA &punctuation_hold_tap GREATER_THAN DOT &punctuation_hold_tap QUESTION FSLH &kp PSCRN
-                                &kp DOWN &kp UP &to MOUSE &repeat_tap_mo NAV BSPC &mt LA(TAB) SPACE      &mt C_PLAY_PAUSE RET &repeat_tap_mo NUM SPACE &key_repeat &kp LEFT &kp RIGHT
+                                &kp DOWN &kp UP &to MOUSE &repeat_tap_mo NAV BSPC &alt_tab_mt 0 SPACE      &mt C_PLAY_PAUSE RET &repeat_tap_mo NUM SPACE &key_repeat &kp LEFT &kp RIGHT
 
         &none &none &none &none &none                                                          &none &none &none &none &none
       >;
