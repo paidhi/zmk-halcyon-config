@@ -63,6 +63,11 @@
 #define KEY_OUTPUT    0x00ff00 // green: USB/BLE output
 #define KEY_LIGHTING  0xff8000 // amber: lighting controls
 #define KEY_SYSTEM    0xff0000 // red: bootloader, Bluetooth clear
+#define KEY_ESCAPE      0x00ffff // cyan: Escape
+#define KEY_CLOSE       0xff0000 // red: close application/tab
+#define KEY_LINE_JUMP   0x0000ff // blue: Home/End line jumps
+#define KEY_ACTION      0xc0c0c0 // white: tab shortcuts and Enter
+#define KEY_RETURN_MAIN 0xffc000 // yellow: return to Main
 // Layer-access keys use the underglow color of the layer they open.
 
 / {
@@ -74,7 +79,14 @@
     compatible = "elora,lighting";
     layer-colors = <GLOW_MAIN GLOW_TYPING GLOW_MOUSE GLOW_NAV GLOW_NUM GLOW_SPECIAL
                     GLOW_SYSMEDIA GLOW_UMLAUT GLOW_ADJUST>;
-    keys-replace-underglow = <NAV NUM SPECIAL SYSMEDIA ADJUST>;
+    keys-replace-underglow = <MOUSE NAV NUM SPECIAL SYSMEDIA ADJUST>;
+
+    mouse_escape { layer = <MOUSE>; color = <KEY_ESCAPE>; positions = <12>; };
+    mouse_close { layer = <MOUSE>; color = <KEY_CLOSE>; positions = <13 14>; };
+    mouse_jumps { layer = <MOUSE>; color = <KEY_LINE_JUMP>; positions = <16 17>; };
+    mouse_actions { layer = <MOUSE>; color = <KEY_ACTION>; positions = <24 36>; };
+    mouse_edit { layer = <MOUSE>; color = <KEY_EDIT>; positions = <39 41>; };
+    mouse_exit { layer = <MOUSE>; color = <KEY_RETURN_MAIN>; positions = <54>; };
 
     nav_arrows { layer = <NAV>; color = <KEY_ARROW>; positions = <20 31 32 33>; };
     nav_jumps { layer = <NAV>; color = <KEY_JUMP>; positions = <18 19 21 46 47 49>; };
@@ -444,8 +456,8 @@
       display-name = "Umlaut";
       bindings = <
         &trans &trans &trans &trans &trans &trans                                            &trans &trans &trans &trans &trans &trans
-        &escape_main MAIN ESC &none &none &none &none &none                                   &none &none &kp RA(Y) &none &none &none
-        &trans &kp RA(Q) &none &kp RA(S) &none &none                                        &none &none &none &none &kp RA(P) &none
+        &escape_main MAIN ESC &none &none &none &none &none                                   &none &none &umlaut_autoshift LS(RA(Y)) RA(Y) &none &none &none
+        &trans &umlaut_autoshift LS(RA(Q)) RA(Q) &none &kp RA(S) &none &none                &none &none &none &none &umlaut_autoshift LS(RA(P)) RA(P) &none
         &none &none &none &none &none &none &none &none       &none &none                     &none &none &none &none &none &none
                            &none &none &none &none &none       &none &none &none &none &none
 
