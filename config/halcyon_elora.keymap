@@ -161,6 +161,22 @@
       bindings = <&sl SYSMEDIA>, <&tog SYSMEDIA>;
     };
 
+    // Brackets: tap ( or ), hold [ or ], double tap { or }.
+    // The hold-tap's first parameter is the hold, the second the tap.
+    left_bracket_dance: left_bracket_dance {
+      compatible = "zmk,behavior-tap-dance";
+      #binding-cells = <0>;
+      tapping-term-ms = <200>;
+      bindings = <&punctuation_hold_tap LBKT LS(N9)>, <&kp LS(LBKT)>;
+    };
+
+    right_bracket_dance: right_bracket_dance {
+      compatible = "zmk,behavior-tap-dance";
+      #binding-cells = <0>;
+      tapping-term-ms = <200>;
+      bindings = <&punctuation_hold_tap RBKT LS(N0)>, <&kp LS(RBKT)>;
+    };
+
     // Always exit SysMedia, including its unlocked one-shot state, without
     // clearing the underlying layers. A normal toggle could lock it instead.
     sysmedia_off: sysmedia_off {
@@ -270,12 +286,6 @@
     combo_hash { key-positions = <15 58>; layers = <MAIN TYPING>; bindings = <&kp LS(N3)>; };
     combo_dollar { key-positions = <16 58>; layers = <MAIN TYPING>; bindings = <&kp LS(N4)>; };
     combo_percent { key-positions = <17 58>; layers = <MAIN TYPING>; bindings = <&kp LS(N5)>; };
-    combo_left_paren { key-positions = <39 40>; layers = <MAIN TYPING>; bindings = <&kp LS(N9)>; };
-    combo_left_bracket { key-positions = <38 39>; layers = <MAIN TYPING>; bindings = <&kp LBKT>; };
-    combo_left_brace { key-positions = <38 39 40>; layers = <MAIN TYPING>; bindings = <&kp LS(LBKT)>; };
-    combo_right_paren { key-positions = <47 48>; layers = <MAIN TYPING>; bindings = <&kp LS(N0)>; };
-    combo_right_bracket { key-positions = <48 49>; layers = <MAIN TYPING>; bindings = <&kp RBKT>; };
-    combo_right_brace { key-positions = <47 48 49>; layers = <MAIN TYPING>; bindings = <&kp LS(RBKT)>; };
     combo_caret { key-positions = <18 55>; layers = <MAIN TYPING>; bindings = <&kp LS(N6)>; };
     combo_ampersand { key-positions = <19 55>; layers = <MAIN TYPING>; bindings = <&kp LS(N7)>; };
     combo_asterisk { key-positions = <20 55>; layers = <MAIN TYPING>; bindings = <&kp LS(N8)>; };
@@ -293,7 +303,7 @@
         &kp ESC   &kp Q  &kp W  &kp F  &kp P  &kp B                                                &kp J  &kp L  &kp U  &kp Y  &punctuation_hold_tap COLON SEMI &sysmedia_access
         &alt_tab_mt 0 TAB   &left_hrm LGUI A &left_hrm LALT R &left_hrm LCTRL S &left_hrm LSHIFT T &kp G   &kp M &right_hrm RSHIFT N &right_hrm RCTRL E &right_hrm LALT I &right_hrm RGUI O &kp RET
         &kp DEL   &kp Z &kp X &kp C &kp D &kp V &kp C_VOL_DN &kp C_VOL_UP   &mo ADJUST &to TYPING    &kp K &kp H &punctuation_hold_tap LESS_THAN COMMA &punctuation_hold_tap GREATER_THAN DOT &punctuation_hold_tap QUESTION FSLH &kp PSCRN
-                                &kp DOWN &kp UP &none &repeat_tap_mo NAV BSPC &alt_tab_mt 0 SPACE      &mt C_PLAY_PAUSE RET &repeat_tap_mo NUM SPACE &key_repeat &kp LEFT &kp RIGHT
+                                &kp DOWN &kp UP &left_bracket_dance &repeat_tap_mo NAV BSPC &alt_tab_mt 0 SPACE      &mt C_PLAY_PAUSE RET &repeat_tap_mo NUM SPACE &right_bracket_dance &kp LEFT &kp RIGHT
 
         &none &none &none &none &none                                                          &none &none &none &none &none
       >;
