@@ -51,7 +51,7 @@
 #define ROLE_MODIFIER      0xffc000 // yellow: sticky modifiers
 #define ROLE_NUMBER        0xc0c0c0 // neutral white: digits, comma, and dot
 #define ROLE_NUMBER_FN     0x80a0ff // cool white: F-keys, a tinted variant of the number white
-#define ROLE_SYMBOL        0x8000ff // violet: symbols (reserved, they come from combos)
+#define ROLE_SYMBOL        0x8000ff // violet: symbols and umlauts (other symbols come from combos)
 #define ROLE_MACRO         0xff00ff // magenta: macros, clipboard, and other key combinations
 #define ROLE_MEDIA         0x00ff00 // green: volume, mute, play/pause, space
 #define ROLE_LAYER         0xff6000 // orange: layer switches and Adjust settings
@@ -66,7 +66,7 @@
     compatible = "elora,lighting";
     layer-colors = <GLOW_MAIN GLOW_TYPING GLOW_NAV GLOW_NUM GLOW_SPECIAL
                     GLOW_SYSMEDIA GLOW_UMLAUT GLOW_ADJUST>;
-    keys-replace-underglow = <NAV NUM SPECIAL SYSMEDIA ADJUST>;
+    keys-replace-underglow = <NAV NUM SPECIAL SYSMEDIA UMLAUT ADJUST>;
 
     nav_arrows { layer = <NAV>; color = <ROLE_NAV_NEAR>; positions = <20 31 32 33>; };
     nav_words { layer = <NAV>; color = <ROLE_NAV_NEAR>; positions = <30 34>; };
@@ -92,6 +92,9 @@
     sysmedia_macros { layer = <SYSMEDIA>; color = <ROLE_MACRO>; positions = <15 26 27 39 46>; };
     sysmedia_close { layer = <SYSMEDIA>; color = <ROLE_DESTRUCTIVE>; positions = <36>; };
     sysmedia_layers { layer = <SYSMEDIA>; color = <ROLE_LAYER>; positions = <12 23>; };
+
+    umlaut_letters { layer = <UMLAUT>; color = <ROLE_SYMBOL>; positions = <20 25 27 34>; };
+    umlaut_layers { layer = <UMLAUT>; color = <ROLE_LAYER>; positions = <12>; };
 
     adjust_settings { layer = <ADJUST>; color = <ROLE_LAYER>; positions = <15 16 17 18 27 28 30 33 34 46 49 50>; };
     adjust_system { layer = <ADJUST>; color = <ROLE_DESTRUCTIVE>; positions = <12 14 23>; };
